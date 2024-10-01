@@ -8,23 +8,27 @@ import { useLocation } from 'react-router-dom';
 import MenuAccount from './components/Layout/MenuAccount';
 import { UserContext } from './UserContext'
 import { useState } from 'react';
+import { Provider } from 'react-redux';
+import store from './store'
 function App(props) {
   let param1 = useLocation()
   const isCart = param1.pathname === "/product/cart"
 
-  const [qty, setQty] = useState(0)
+  // const [qty, setQty] = useState(0)
   const user = JSON.parse(localStorage.getItem('authUser'))
 
-  function getQty(data) {
-    setQty(data)
-    localStorage["tongQty"] = JSON.stringify(data);
-  }
+  // function getQty(data) {
+  //   setQty(data)
+  //   localStorage["tongQty"] = JSON.stringify(data);
+  // }
   return (
-    <UserContext.Provider value={{
-      qty: qty,
-      getQty: getQty,
-      email: user.email
-    }}>
+
+    // <UserContext.Provider value={{
+    //   qty: qty,
+    //   getQty: getQty,
+    //   // email: user.email
+    // }}>
+    <Provider store={store} >
       <Header />
       <Slider />
       <section>
@@ -45,7 +49,8 @@ function App(props) {
         </div>
       </section>
       <Footer />
-    </UserContext.Provider>
+    </Provider>
+    // </UserContext.Provider>
   );
 }
 

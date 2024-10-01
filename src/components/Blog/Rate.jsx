@@ -93,7 +93,7 @@ function Rate(props) {
             rating={rating || 0} // Đảm bảo rằng rating không phải là undefined
             starRatedColor="blue"
             changeRating={changeRating}
-            numberOfStars={6}
+            numberOfStars={5}
             name='rating'
         />
 

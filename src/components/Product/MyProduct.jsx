@@ -57,9 +57,9 @@ function MyProduct() {
                             <img style={{ width: '100px' }} src={"http://localhost/laravel8/laravel8/public/upload/product/" + data[key].id_user + "/" + firstImage} alt="product" />
                         </td>
                         <td>{data[key].price}</td>
-                        <td class="action-buttons">
-                            <Link to={"/product/edit/" + data[key].id}><button class="edit">Edit</button></Link>
-                            <Link to={""} onClick={() => hanldeDelete(data[key].id)}><button class="delete">Delete</button></Link>
+                        <td className="action-buttons">
+                            <Link to={"/product/edit/" + data[key].id}><button className="edit">Edit</button></Link>
+                            <Link to={""} onClick={() => hanldeDelete(data[key].id)}><button className="delete">Delete</button></Link>
                         </td>
                     </tr>
                 )
@@ -67,7 +67,7 @@ function MyProduct() {
         }
     }
     return (
-        <div class="main-content">
+        <div className="main-content">
             <table>
                 <thead>
                     <tr>
@@ -83,7 +83,7 @@ function MyProduct() {
                 </tbody>
             </table>
             <Link to={'/product/add'}>
-                <button type="submit" class="add-product">Add Product</button>
+                <button type="submit" className="add-product">Add Product</button>
             </Link>
         </div>
     )

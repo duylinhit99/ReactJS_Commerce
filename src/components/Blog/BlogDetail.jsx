@@ -75,7 +75,7 @@ function BlogDetail(props) {
                     <li>
                         <Rate idBlog={idBlog} />
                     </li>
-                    <li className="color">(6 votes)</li>
+                    <li className="color">(5 votes)</li>
                 </ul>
                 <ul className="tag">
                     <li>TAG:</li>

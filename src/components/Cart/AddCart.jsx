@@ -1,7 +1,13 @@
+import { useContext } from "react";
 import { Link } from "react-router-dom";
-
+import { UserContext } from "../../UserContext";
+import { useDispatch } from 'react-redux';
+import { addToCart } from "../../actions/cart";
 function AddCart(props) {
     let { id } = props
+    const xx = useContext(UserContext);
+
+    const dispatch = useDispatch()
     function handleCart() {
         const cart = JSON.parse(localStorage.getItem('cart')) || {}
         if (!cart[id]) {
@@ -16,11 +22,13 @@ function AddCart(props) {
         let tongQty = 0
         if (Object.keys(cart).length > 0) {
             Object.keys(cart).map((item, i) => {
-                tongQty = tongQty + cart[item]
+                tongQty += cart[item]
             })
         }
-        localStorage.setItem('tongQty', JSON.stringify(tongQty))
-
+        // xx.getQty(tongQty)
+        // localStorage.setItem('tongQty', JSON.stringify(tongQty))
+        const action = addToCart(tongQty);
+        dispatch(action);
     }
     return (
         <>

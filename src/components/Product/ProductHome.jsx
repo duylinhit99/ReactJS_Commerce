@@ -71,13 +71,13 @@ function ProductHome() {
                 <div className="features_items">
                     <h2 className="title text-center">Features Items</h2>
                     {renderProduct()}
-                    <ul className="pagination">
-                        <li className="active"><a href="#">1</a></li>
-                        <li><a href="#">2</a></li>
-                        <li><a href="#">3</a></li>
-                        <li><a href="#">»</a></li>
-                    </ul>
                 </div>
+                <ul className="pagination">
+                    <li className="active"><a href="#">1</a></li>
+                    <li><a href="#">2</a></li>
+                    <li><a href="#">3</a></li>
+                    <li><a href="#">»</a></li>
+                </ul>
             </div>
         </>
     );

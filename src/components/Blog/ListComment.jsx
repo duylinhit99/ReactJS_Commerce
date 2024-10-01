@@ -1,9 +1,14 @@
 import moment from 'moment';
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
 
 function ListComment({ listComment, handleReplyClick }) {
+
+    const [activeReply, setActiveReply] = useState();
+
     function handleReply(e) {
         handleReplyClick(e.target.id);
+        setActiveReply(activeReply === e.target.id ? "" : e.target.id);
     }
 
     function getRepliesForComment(idComment, commentsList) {
@@ -17,8 +22,8 @@ function ListComment({ listComment, handleReplyClick }) {
                 <Link to="" className="pull-left">
                     <img
                         className="media-object"
-                        style={{ width: 100 }}
-                        src={`http://localhost/laravel8/public/upload/user/avatar/${item.image_user}`}
+                        style={{ width: 30 }}
+                        src={'http://localhost/laravel8/laravel8/public/upload/user/avatar/' + item.image_user}
                         alt=""
                     />
                 </Link>
@@ -42,6 +47,12 @@ function ListComment({ listComment, handleReplyClick }) {
                         <i className="fa fa-reply" />
                         Reply
                     </Link>
+                    {activeReply === item.id && (
+                        <div className="chat-box">
+                            <textarea placeholder="Enter your reply" className="form-control" />
+                            <button className="btn btn-success mt-2">Send</button>
+                        </div>
+                    )}
                 </div>
                 {replies.length > 0 && (
                     <ul>
