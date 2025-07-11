@@ -34,7 +34,7 @@ function Login() {
         e.preventDefault()
         let isCheck = true
         let errorSubmit = {}
-        if (input.email == "") {
+        if (input.email === "") {
             errorSubmit.email = "Please enter Email"
             isCheck = false
         } else if (!validateEmail(input.email)) {
@@ -42,7 +42,7 @@ function Login() {
             isCheck = false
         }
 
-        if (input.password == "") {
+        if (input.password === "") {
             errorSubmit.password = "Please enter Password"
             isCheck = false
         }
@@ -78,7 +78,7 @@ function Login() {
                 <h2>Login to your account</h2>
                 <form action="#" onSubmit={hanldeSubmit}>
                     <input type="email" placeholder="Email" name="email" onChange={hanldeInput} />
-                    <input type="password" placeholder="Password" name="password" onChange={hanldeInput} />
+                    <input type="password" placeholder="Password" name="pswordas" onChange={hanldeInput} />
                     <span>
                         <input type="checkbox" className="checkbox" />
                         Keep me signed in

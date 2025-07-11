@@ -3,7 +3,7 @@ import { Link, useParams } from "react-router-dom";
 import AddCart from '../Cart/AddCart'
 import API from "../../API";
 
-function ProductDetail() {
+function ProductDetail(props) {
     let params = useParams();
 
     const [item, setItem] = useState({})
@@ -36,13 +36,15 @@ function ProductDetail() {
     //     return null
     // }
     useEffect(() => {
-        const user = JSON.parse(localStorage.getItem("appState"))
-        setUserName(user.name)
+        const user = JSON.parse(localStorage.getItem("authUser"))
+        setUserName(user.name);
+
+        // setUserName(user.name)
     }, [])
     const renderData = () => {
         if (Object.keys(item).length > 0) {
             const imageArray = JSON.parse(item.image)
-            console.log(imageArray)
+            // console.log(imageArray)
             return (
                 <>
                     <div className="product-details">

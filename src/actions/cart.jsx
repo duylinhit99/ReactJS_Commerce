@@ -1,3 +1,4 @@
+// khởi tạo actions
 export const addToCart = (tongQty) => {
     return {
         type: "ADD_TO_CART",
