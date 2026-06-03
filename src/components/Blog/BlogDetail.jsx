@@ -13,6 +13,10 @@ function BlogDetail() {
   const [commentReplyId, setCommentReplyId] = useState(null);
 
   useEffect(() => {
+    setData(null);
+    setListComment([]);
+    setCommentReplyId(null);
+
     API.get(`/blog/detail/${id}`)
       .then((response) => {
         setData(response.data.data);
@@ -21,12 +25,13 @@ function BlogDetail() {
       .catch((err) => console.error(err));
   }, [id]);
 
-  function handleNewComment(newComment) {
-    setListComment((prev) => [...prev, newComment]);
-  }
-
   function handleReplyClick(commentId) {
     setCommentReplyId(commentId);
+  }
+
+  function handleNewComment(newComment) {
+    setListComment((prev) => [...prev, newComment]);
+    setCommentReplyId(null);
   }
 
   if (!data) {

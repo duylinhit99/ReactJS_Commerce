@@ -1,26 +1,18 @@
-import { useContext, useEffect } from "react";
+import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { UserContext } from "../../UserContext";
 import { useSelector } from "react-redux";
+import { clearAuthSession, isLoggedIn } from "../../utils/auth";
 
 function Header() {
-    const navigate = useNavigate()
+    const navigate = useNavigate();
+    const [menuOpen, setMenuOpen] = useState(false);
     // const qty = JSON.parse(localStorage.getItem('tongQty'))
 
     const cartList = useSelector(state => state.cart.tongQty)
 
     // const { qty, getQty } = useContext(UserContext); // Giả sử context cung cấp `qty` và `getQty`
-    const cart = JSON.parse(localStorage.getItem("cart")) || {}; // Đảm bảo `cart` không bị `null`
-
-    // useEffect(() => {
-    //     // Tính tổng số lượng sản phẩm trong giỏ hàng
-    //     const totalQty = Object.values(cart).reduce((acc, quantity) => acc + quantity, 0);
-    //     // Cập nhật qty trong context
-    //     getQty(totalQty);
-    // }, [cart, getQty]); // Thực hiện khi `cart` thay đổi
-
     function hanldeLogin() {
-        if (localStorage.getItem('login')) {
+        if (isLoggedIn()) {
             return (
                 <li><Link to="/login" onClick={hanldeLogout}><i className="fa fa-lock"></i>Logout</Link></li>
             )
@@ -31,9 +23,18 @@ function Header() {
         }
     }
 
-    function hanldeLogout() {
-        localStorage.removeItem('login')
-        navigate('/login')
+    function hanldeLogout(e) {
+        e.preventDefault();
+        clearAuthSession();
+        navigate('/login');
+    }
+
+    function toggleMenu() {
+        setMenuOpen((open) => !open);
+    }
+
+    function closeMenu() {
+        setMenuOpen(false);
     }
 
     // function renderTotal() {
@@ -122,7 +123,7 @@ function Header() {
                                     <li><Link to="/account"><i className="fa fa-user"></i> Account</Link></li>
                                     <li><a href=""><i className="fa fa-star"></i> Wishlist</a></li>
                                     <li><a href="checkout.html"><i className="fa fa-crosshairs"></i> Checkout</a></li>
-                                    <li><Link to="/product/cart"><i class="fa fa-shopping-cart"></i> Cart {cartList}</Link></li>
+                                    <li><Link to="/product/cart"><i className="fa fa-shopping-cart"></i> Cart {cartList}</Link></li>
                                     {hanldeLogin()}
                                 </ul>
                             </div>
@@ -136,7 +137,13 @@ function Header() {
                     <div className="row">
                         <div className="col-sm-9">
                             <div className="navbar-header">
-                                <button type="button" className="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                                <button
+                                    type="button"
+                                    className="navbar-toggle"
+                                    aria-expanded={menuOpen}
+                                    aria-label="Toggle navigation"
+                                    onClick={toggleMenu}
+                                >
                                     <span className="sr-only">Toggle navigation</span>
                                     <span className="icon-bar"></span>
                                     <span className="icon-bar"></span>
@@ -144,8 +151,8 @@ function Header() {
                                 </button>
                             </div>
                             <div className="mainmenu pull-left">
-                                <ul className="nav navbar-nav collapse navbar-collapse">
-                                    <li><Link to="/" className="active">Home</Link></li>
+                                <ul className={`nav navbar-nav collapse navbar-collapse${menuOpen ? " menu-open" : ""}`}>
+                                    <li><Link to="/" className="active" onClick={closeMenu}>Home</Link></li>
                                     <li className="dropdown"><a href="#">Shop<i className="fa fa-angle-down"></i></a>
                                         <ul role="menu" className="sub-menu">
                                             <li><a href="shop.html">Products</a></li>
@@ -157,7 +164,7 @@ function Header() {
                                     </li>
                                     <li className="dropdown"><a href="#">Blog<i className="fa fa-angle-down"></i></a>
                                         <ul role="menu" className="sub-menu">
-                                            <li><Link to="/blog">Blog List</Link></li>
+                                            <li><Link to="/blog" onClick={closeMenu}>Blog List</Link></li>
                                             <li><a href="blog-single.html">Blog Single</a></li>
                                         </ul>
                                     </li>

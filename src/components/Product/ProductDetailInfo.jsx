@@ -9,6 +9,7 @@ function ProductDetailInfo({ item, selectedImage, onSelectImage }) {
 
   return (
     <div className="product-details">
+      <div className="row">
       <div className="col-sm-5">
         <div className="view-product">
           <img
@@ -53,6 +54,7 @@ function ProductDetailInfo({ item, selectedImage, onSelectImage }) {
             <b>Availability:</b> In Stock
           </p>
         </div>
+      </div>
       </div>
     </div>
   );
