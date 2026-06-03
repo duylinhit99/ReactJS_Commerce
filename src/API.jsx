@@ -1,5 +1,8 @@
-import axios from 'axios';
+import axios from "axios";
+import { API_PUBLIC_BASE } from "./config";
 
-export default axios.create({
-    baseURL: `http://localhost/laravel8/laravel8/public/api`,
+const API = axios.create({
+  baseURL: `${API_PUBLIC_BASE}/api`,
 });
+
+export default API;

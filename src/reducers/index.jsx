@@ -1,9 +1,8 @@
 import { combineReducers } from "redux";
 import cartReducer from "./cart";
 
-//cấu hình -  tập hợp các reducer
 const rootReducer = combineReducers({
-    cart: cartReducer
-})
+  cart: cartReducer,
+});
 
 export default rootReducer;

@@ -1,76 +1,77 @@
 import { useState } from "react";
 import API from "../../API";
+import FormTextarea from "../common/FormTextarea";
+import SubmitButton from "../common/SubmitButton";
+import { getAuthUser, getAuthHeaders, isLoggedIn } from "../../utils/auth";
+import { isEmpty } from "../../utils/validation";
 
-function Comment(props) {
-    const [comment, setComment] = useState('')
-    const [error, setError] = useState({})
-    const accessToken = JSON.parse(localStorage.getItem('accessToken'))
-    const dataUser = JSON.parse(localStorage.getItem('authUser'))
+function Comment({ idBlog, onCommentPosted, idCommentToReply }) {
+  const [comment, setComment] = useState("");
+  const [error, setError] = useState("");
 
-    let { idBlog, getCmt, idCommentToReply } = props
+  function handleMessage(e) {
+    setComment(e.target.value);
+  }
 
-    function hanldeMessage(e) {
-        setComment(e.target.value)
+  function handlePostComment(e) {
+    e.preventDefault();
+
+    if (isEmpty(comment)) {
+      setError("Vui lòng nhập comment");
+      return;
     }
-    function hanldePostComment(e) {
-        e.preventDefault()
-        let isCheck = true
-        if (comment == "") {
-            setError("Vui long nhap comment")
-            isCheck = false
-        } else if (!JSON.parse(localStorage.getItem('login'))) {
-            setError("vui lòng đăng nhập")
-            isCheck = false
-        }
-
-        if (isCheck) {
-            let url = '/blog/comment/' + idBlog;
-            let config = {
-                headers: {
-                    'Authorization': 'Bearer ' + accessToken,
-                    'Content-Type': 'application/x-www-form-urlencoded',
-                    'Accept': 'application/json',
-                },
-            };
-            const formData = new FormData();
-            formData.append('id_blog', idBlog);
-            formData.append('id_user', dataUser.id);
-            formData.append('id_comment', idCommentToReply ? idCommentToReply : 0);
-            formData.append('comment', comment);
-            formData.append('image_user', dataUser.avatar);
-            formData.append('name_user', dataUser.name);
-            API.post(url, formData, config)
-                .then((response) => {
-                    if (response.data.errors) {
-                        console.log(response.data.errors);
-                    } else {
-                        getCmt(response.data.data);
-                        setComment("")
-                        console.log(response);
-                    }
-                })
-                .catch(function (error) {
-                    console.log(error);
-                });
-        }
-
+    if (!isLoggedIn()) {
+      setError("Vui lòng đăng nhập");
+      return;
     }
-    return (
-        <div className="replay-box">
-            <div className="row">
-                <div className="col-sm-12">
-                    <h2>Leave a replay</h2>
-                    <div className="text-area">
-                        <div className="blank-arrow">
-                            <label>Your Name</label>
-                        </div>
-                        <span>*</span>
-                        <textarea name="message" rows="11" onChange={hanldeMessage}></textarea>
-                        <button className="btn btn-primary" onClick={hanldePostComment}>post comment</button>
-                    </div>
-                </div>
-            </div>
+
+    const user = getAuthUser();
+    if (!user?.id) {
+      setError("Không tìm thấy thông tin user");
+      return;
+    }
+
+    setError("");
+    const formData = new FormData();
+    formData.append("id_blog", idBlog);
+    formData.append("id_user", user.id);
+    formData.append("id_comment", idCommentToReply || 0);
+    formData.append("comment", comment);
+    formData.append("image_user", user.avatar);
+    formData.append("name_user", user.name);
+
+    API.post(`/blog/comment/${idBlog}`, formData, { headers: getAuthHeaders() })
+      .then((response) => {
+        if (response.data.errors) {
+          setError("Không gửi được comment");
+          return;
+        }
+        onCommentPosted(response.data.data);
+        setComment("");
+      })
+      .catch((err) => console.error(err));
+  }
+
+  return (
+    <div className="replay-box">
+      <div className="row">
+        <div className="col-sm-12">
+          <h2>Leave a replay</h2>
+          {error && <p className="field-error">{error}</p>}
+          <form onSubmit={handlePostComment}>
+            <FormTextarea
+              label="Your comment"
+              name="message"
+              value={comment}
+              onChange={handleMessage}
+              required
+            />
+            <SubmitButton label="Post comment" className="btn btn-primary" />
+          </form>
         </div>
-    )
+      </div>
+    </div>
+  );
 }
+
 export default Comment;
