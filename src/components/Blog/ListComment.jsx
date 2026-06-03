@@ -1,20 +1,16 @@
 import moment from "moment";
-import { useState } from "react";
 import { Link } from "react-router-dom";
 import { userAvatarUrl } from "../../config";
 
-function ListComment({ listComment, handleReplyClick }) {
-  const [activeReply, setActiveReply] = useState("");
-
+function ListComment({ listComment, handleReplyClick, idReply }) {
   function handleReply(e) {
-    const commentId = e.target.id;
-    handleReplyClick(commentId);
-    setActiveReply(activeReply === commentId ? "" : commentId);
+    const commentId = Number(e.currentTarget.dataset.commentId);
+    handleReplyClick(Number(idReply) === commentId ? null : commentId);
   }
 
   function getRepliesForComment(idComment) {
     return listComment.filter(
-      (value) => parseInt(value.id_comment, 10) === idComment
+      (value) => Number(value.id_comment) === Number(idComment)
     );
   }
 
@@ -52,22 +48,14 @@ function ListComment({ listComment, handleReplyClick }) {
           <p>{item.comment}</p>
           <button
             type="button"
-            id={item.id}
+            data-comment-id={item.id}
             onClick={handleReply}
             className="btn btn-primary"
           >
             <i className="fa fa-reply" /> Reply
           </button>
-          {activeReply === String(item.id) && (
-            <div className="chat-box">
-              <textarea
-                placeholder="Enter your reply"
-                className="form-control"
-              />
-              <button type="button" className="btn btn-success mt-2">
-                Send
-              </button>
-            </div>
+          {Number(idReply) === Number(item.id) && (
+            <p className="reply-hint">Replying to this comment below.</p>
           )}
         </div>
         {replies.length > 0 && (
@@ -78,7 +66,7 @@ function ListComment({ listComment, handleReplyClick }) {
   }
 
   const rootComments = listComment.filter(
-    (item) => parseInt(item.id_comment, 10) === 0
+    (item) => Number(item.id_comment) === 0
   );
 
   return (

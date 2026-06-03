@@ -1,4 +1,3 @@
-import { Link } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { setCartQty } from "../../actions/cart";
 import { addProductToCart } from "../../utils/cart";
@@ -13,14 +12,14 @@ function AddCart({ id }) {
   }
 
   return (
-    <Link
-      to="/"
+    <button
+      type="button"
       className="btn btn-default add-to-cart"
       onClick={handleAddToCart}
     >
       <i className="fa fa-shopping-cart" />
       Add to cart
-    </Link>
+    </button>
   );
 }
 

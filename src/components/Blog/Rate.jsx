@@ -39,6 +39,8 @@ function Rate({ idBlog }) {
     if (!user?.id) return;
 
     const previousUserRating = userRating;
+    const previousRating = rating;
+    const previousTotalRates = totalRates;
     const newTotalRates = userRating ? totalRates : totalRates + 1;
     const newAvgRating = userRating
       ? (rating * totalRates - previousUserRating + newRating) / totalRates
@@ -53,29 +55,29 @@ function Rate({ idBlog }) {
     formData.append("blog_id", idBlog);
     formData.append("rate", newRating);
 
+    function rollbackRating() {
+      setRating(
+        previousUserRating
+          ? (previousRating * previousTotalRates +
+              previousUserRating -
+              newRating) /
+              previousTotalRates
+          : (previousRating * previousTotalRates - newRating) /
+              (newTotalRates - 1)
+      );
+      setTotalRates(previousUserRating ? previousTotalRates : newTotalRates - 1);
+      setUserRating(previousUserRating);
+    }
+
     API.post(`/blog/rate/${idBlog}`, formData, { headers: getAuthHeaders() })
       .then((response) => {
         if (response.data.errors) {
-          setRating(
-            previousUserRating
-              ? (rating * totalRates + previousUserRating - newRating) /
-                  totalRates
-              : (rating * totalRates - newRating) / (newTotalRates - 1)
-          );
-          setTotalRates(userRating ? totalRates : totalRates - 1);
-          setUserRating(previousUserRating);
+          rollbackRating();
         }
       })
       .catch((err) => {
         console.error(err);
-        setRating(
-          previousUserRating
-            ? (rating * totalRates + previousUserRating - newRating) /
-                totalRates
-            : (rating * totalRates - newRating) / (newTotalRates - 1)
-        );
-        setTotalRates(userRating ? totalRates : totalRates - 1);
-        setUserRating(previousUserRating);
+        rollbackRating();
       });
   }
 

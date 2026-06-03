@@ -15,9 +15,11 @@ function ProductHome() {
     <div className="col-sm-9 padding-right">
       <div className="features_items">
         <h2 className="title text-center">Features Items</h2>
-        {products.map((product) => (
-          <ProductCard key={product.id} product={product} />
-        ))}
+        <div className="row">
+          {products.map((product) => (
+            <ProductCard key={product.id} product={product} />
+          ))}
+        </div>
       </div>
     </div>
   );

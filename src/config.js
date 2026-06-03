@@ -1,5 +1,4 @@
-export const API_PUBLIC_BASE =
-  "http://localhost/laravel8/laravel8/public";
+export const API_PUBLIC_BASE = "http://127.0.0.1:8000";
 
 export const API_BASE_UPLOAD = `${API_PUBLIC_BASE}/upload/product`;
 
