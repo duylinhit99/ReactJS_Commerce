@@ -1,91 +1,88 @@
 import { useEffect, useState } from "react";
 import API from "../../API";
 import { Link } from "react-router-dom";
+import { getAuthHeaders } from "../../utils/auth";
+import { productImageUrl } from "../../config";
 
 function MyProduct() {
-    const [data, setData] = useState("")
-    const accessToken = JSON.parse(localStorage.getItem("accessToken"))
-    let url = "user/my-product"
+  const [data, setData] = useState([]);
 
-    useEffect(() => {
-        let config = {
-            headers: {
-                'Authorization': 'Bearer ' + accessToken,
-                'Content-Type': 'application/x-www-form-urlencoded',
-                'Accept': 'application/json'
-            }
+  useEffect(() => {
+    API.get("user/my-product", { headers: getAuthHeaders() })
+      .then((res) => {
+        if (!res.data.errors) {
+          setData(res.data.data ?? []);
         }
-        API.get(url, config)
-            .then(res => {
-                if (res.data.errors) {
-                    console.log(res.data.errors);
-                } else {
-                    setData(res.data.data)
-                }
-            }).catch((error) => {
-                console.log(error);
+      })
+      .catch((err) => console.error(err));
+  }, []);
 
-            })
-    }, [])
+  function handleDelete(productId) {
+    API.get(`/user/product/delete/${productId}`, { headers: getAuthHeaders() })
+      .then((res) => setData(res.data.data ?? []))
+      .catch((err) => console.error(err));
+  }
 
-    function hanldeDelete(productId) {
-        let config = {
-            headers: {
-                'Authorization': 'Bearer ' + accessToken,
-                'Content-Type': 'application/x-www-form-urlencoded',
-                'Accept': 'application/json'
-            }
-        }
-        API.get("/user/product/delete/" + productId, config)
-            .then(res => {
-                setData(res.data.data)
-            })
-            .catch(function (error) {
-                console.log(error)
-            })
-    }
-    function renderData() {
-        if (Object.keys(data).length > 0) {
-            return Object.keys(data).map((key, index) => {
-                const imageArray = JSON.parse(data[key].image);
-                const firstImage = imageArray[0]
-                return (
-                    <tr key={key}>
-                        <td>{data[key].id}</td>
-                        <td>{data[key].name}</td>
-                        <td className="product_image">
-                            <img style={{ width: '100px' }} src={"http://localhost/laravel8/laravel8/public/upload/product/" + data[key].id_user + "/" + firstImage} alt="product" />
-                        </td>
-                        <td>{data[key].price}</td>
-                        <td className="action-buttons">
-                            <Link to={"/product/edit/" + data[key].id}><button className="edit">Edit</button></Link>
-                            <Link to={""} onClick={() => hanldeDelete(data[key].id)}><button className="delete">Delete</button></Link>
-                        </td>
-                    </tr>
-                )
-            })
-        }
-    }
-    return (
-        <div className="main-content">
-            <table>
-                <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>Name</th>
-                        <th>Image</th>
-                        <th>Price</th>
-                        <th>Action</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {renderData()}
-                </tbody>
-            </table>
-            <Link to={'/product/add'}>
-                <button type="submit" className="add-product">Add Product</button>
+  const rows = !data || Object.keys(data).length === 0
+    ? []
+    : Object.keys(data).map((key) => {
+      const item = data[key];
+      const imageArray = JSON.parse(item.image || "[]");
+      const firstImage = imageArray[0];
+
+      return (
+        <tr key={item.id ?? key}>
+          <td>{item.id}</td>
+          <td>{item.name}</td>
+          <td className="product_image">
+            {firstImage && (
+              <img
+                style={{ width: "100px" }}
+                src={productImageUrl(item.id_user, firstImage)}
+                alt="product"
+              />
+            )}
+          </td>
+          <td>{item.price}</td>
+          <td className="action-buttons">
+            <Link to={`/product/edit/${item.id}`}>
+              <button type="button" className="edit">
+                Edit
+              </button>
             </Link>
-        </div>
-    )
+            <button
+              type="button"
+              className="delete"
+              onClick={() => handleDelete(item.id)}
+            >
+              Delete
+            </button>
+          </td>
+        </tr>
+      );
+    });
+
+  return (
+    <div className="main-content">
+      <table>
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Image</th>
+            <th>Price</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>{rows}</tbody>
+      </table>
+      <Link to="/product/add">
+        <button type="button" className="add-product">
+          Add Product
+        </button>
+      </Link>
+    </div>
+  );
 }
+
 export default MyProduct;

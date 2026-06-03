@@ -8,10 +8,9 @@ import {
   Routes,
   Route
 } from "react-router-dom"
-import Home from "./components/Layout/Home"
 import Blog from './components/Blog/Blog';
 import BlogDetail from './components/Blog/BlogDetail';
-import Index from './components/Member/Index';
+import MemberIndex from './components/Member/Index';
 import Account from './components/Account/Account';
 import MyProduct from './components/Product/MyProduct';
 import AddMyProduct from './components/Product/AddMyProduct';
@@ -28,7 +27,7 @@ root.render(
           <Route index path='/' element={<ProductHome />} />
           <Route path='/blog' element={<Blog />} />
           <Route path='/blog/detail/:id' element={<BlogDetail />} />
-          <Route path='/login' element={<Index />} />
+          <Route path='/login' element={<MemberIndex />} />
           <Route path='/account' element={<Account />} />
           <Route path='/my-product' element={<MyProduct />} />
           <Route path='/product/add' element={<AddMyProduct />} />

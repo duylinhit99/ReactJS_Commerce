@@ -1,193 +1,147 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import API from "../../API";
+import FormPanel from "../common/FormPanel";
+import FormField from "../common/FormField";
+import FormFileInput from "../common/FormFileInput";
+import FormErrorList from "../common/FormErrorList";
+import SubmitButton from "../common/SubmitButton";
+import { useForm } from "../../hooks/useForm";
+import { useSingleImageUpload } from "../../hooks/useSingleImageUpload";
+import {
+  getAccessToken,
+  getAuthUser,
+  getAuthHeaders,
+  setAuthSession,
+} from "../../utils/auth";
+import { isEmpty, validateImageFile } from "../../utils/validation";
+
+const INITIAL_USER = {
+  username: "",
+  email: "",
+  address: "",
+  phone: "",
+  pass: "",
+};
+
 function Account() {
-  const [user, setUser] = useState({
-    username: "",
-    email: "",
-    address: "",
-    phone: "",
-    pass: "",
-    avatar: "",
-  });
-  const [userId, setUserID] = useState("");
-  const [error, setError] = useState({});
-  const [file, setFile] = useState("");
-  const [avatar, setAvatar] = useState("");
-  const typeFile = ["png", "jpg", "jpeg", "PNG", "JPG"];
-  function handleFile(e) {
-    const files = e.target.files;
-    setFile(files);
-    if (files && files.length > 0) {
-      let render = new FileReader();
-      render.onload = (e) => {
-        setAvatar(e.target.result);
-      };
-      render.readAsDataURL(files[0]);
-    }
-  }
+  const { values, setValues, errors, setErrors, handleChange } =
+    useForm(INITIAL_USER);
+  const { file, preview, handleFileChange } = useSingleImageUpload();
+  const userId = getAuthUser()?.id ?? "";
+
   useEffect(() => {
-    let userData = localStorage.getItem("authUser");
-    if (userData) {
-      userData = JSON.parse(userData);
-      setUserID(userData.id);
-      setUser({
-        username: userData.name,
-        email: userData.email,
-        address: userData.address,
-        phone: userData.phone,
-      });
-    }
-  }, []);
-  function handleInput(e) {
-    const nameUser = e.target.name;
-    const value = e.target.value;
-    setUser((prev) => ({ ...prev, [nameUser]: value }));
+    const auth = getAuthUser();
+    if (!auth) return;
+    setValues({
+      username: auth.name ?? "",
+      email: auth.email ?? "",
+      address: auth.address ?? "",
+      phone: auth.phone ?? "",
+      pass: "",
+    });
+  }, [setValues]);
+
+  function validateForm() {
+    const nextErrors = {};
+    if (isEmpty(values.username)) nextErrors.username = "Vui lòng nhập tên";
+    if (isEmpty(values.pass)) nextErrors.pass = "Vui lòng nhập mật khẩu";
+    if (isEmpty(values.address)) nextErrors.address = "Vui lòng nhập địa chỉ";
+    if (isEmpty(values.phone)) nextErrors.phone = "Vui lòng nhập số điện thoại";
+
+    const avatarError = validateImageFile(file, {
+      required: true,
+      maxSizeMb: 1,
+    });
+    if (avatarError) nextErrors.avatar = avatarError;
+
+    return nextErrors;
   }
 
   function handleSubmit(e) {
     e.preventDefault();
-    let errorSubmit = {};
-    let isCheck = true;
-    if (user.username === "") {
-      errorSubmit.username = "Vui lòng nhập tên";
-      isCheck = false;
-    }
-    if (user.pass === "") {
-      errorSubmit.pass = "Vui lòng nhập mật khẩu";
-      isCheck = false;
-    }
-    if (user.address === "") {
-      errorSubmit.address = "Vui lòng nhập địa chỉ";
-      isCheck = false;
-    }
-    if (user.phone === "") {
-      errorSubmit.phone = "Vui lòng nhập số điện thoại";
-      isCheck = false;
-    }
-    if (file === "") {
-      errorSubmit.avatar = "Vui lòng gửi file để upload";
-      isCheck = false;
-    } else {
-      if (file[0].size > 1024 * 1024) {
-        setError((prev) => ({
-          ...prev,
-          avatar: "Vui lòng chọn file nhỏ hơn 1 MB",
-        }));
-        isCheck = false;
-      } else if (!typeFile.includes(file[0].name.split(".").pop())) {
-        setError((prev) => ({
-          ...prev,
-          avatar: "Chỉ chưa những file ảnh có đuôi: png, jpg, jpeg, PNG, JPG",
-        }));
-        isCheck = false;
-      } else {
-        setError((prev) => ({ ...prev, avatar: "" }));
-      }
+    const nextErrors = validateForm();
+    if (Object.keys(nextErrors).length > 0) {
+      setErrors(nextErrors);
+      return;
     }
 
-    if (!isCheck) {
-      setError(errorSubmit);
-    } else {
-      setError({});
-      let url = "/user/update/" + userId;
-      const accessToken = JSON.parse(localStorage.getItem("accessToken"));
-      let config = {
-        headers: {
-          Authorization: "Bearer " + accessToken,
-          "Content-Type": "application/x-www-form-urlencoded",
-          Accept: "application/json",
-        },
-      };
-      let formData = new FormData();
-      formData.append("name", user.username);
-      formData.append("password", user.pass);
-      formData.append("phone", user.phone);
-      formData.append("email", user.email);
-      formData.append("address", user.address);
-      formData.append("avatar", avatar);
+    setErrors({});
+    const formData = new FormData();
+    formData.append("name", values.username);
+    formData.append("password", values.pass);
+    formData.append("phone", values.phone);
+    formData.append("email", values.email);
+    formData.append("address", values.address);
+    formData.append("avatar", preview);
 
-      API.post(url, formData, config)
-        .then((response) => {
-          if (response.data.errors) {
-            setError(response.data.errors);
-          } else {
-            console.log(response);
-            localStorage.setItem(
-              "appState",
-              JSON.stringify(response.data.Auth)
-            );
-            localStorage.setItem(
-              "accessToken",
-              JSON.stringify(response.data.token)
-            );
-          }
-        })
-        .catch(function (error) {
-          console.log(error);
-        });
-    }
+    API.post(`/user/update/${userId}`, formData, { headers: getAuthHeaders() })
+      .then((response) => {
+        if (response.data.errors) {
+          setErrors(response.data.errors);
+          return;
+        }
+        setAuthSession(response.data.Auth, response.data.token);
+      })
+      .catch((err) => console.error(err));
   }
-  function renderError() {
-    if (Object.keys(error).length > 0) {
-      return Object.keys(error).map((value, key) => {
-        return <li key={key}>{error[value]}</li>;
-      });
-    }
-  }
+
   return (
-    <>
-      <div
-        className="signup-form col-sm-8 padding-right "
-        style={{ marginBottom: 10 }}
-      >
-        <h2>User Update</h2>
-        {renderError()}
-        <form encType="multipart/form-data" onSubmit={handleSubmit}>
-          <label>Full Name (*)</label>
-          <input
-            type="text"
-            name="username"
-            value={user.username}
-            onChange={handleInput}
-          />
-          <label>Email (*)</label>
-          <input type="email" name="email" readOnly value={user.email} />
-          <label>Password (*)</label>
-          <input
-            type="password"
-            name="pass"
-            value={user.pass}
-            onChange={handleInput}
-          />
-          <label>Phone (*)</label>
-          <input
-            type="text"
-            name="phone"
-            value={user.phone}
-            onChange={handleInput}
-          />
-          <label>Address (*)</label>
-          <input
-            type="text"
-            name="address"
-            value={user.address}
-            onChange={handleInput}
-          />
-          <label>Avatar (*)</label>
-          <input
-            type="file"
-            accept="image/*"
-            style={{ paddingTop: 10 }}
-            name="avatar"
-            onChange={handleFile}
-          />
-          <img src={avatar} alt="" style={{ width: 100, marginBottom: 10 }} />
-          <button type="submit" className="btn btn-default">
-            Update
-          </button>
-        </form>
-      </div>
-    </>
+    <FormPanel title="User Update">
+      <FormErrorList errors={errors} />
+      <form encType="multipart/form-data" onSubmit={handleSubmit}>
+        <FormField
+          label="Full Name"
+          name="username"
+          value={values.username}
+          onChange={handleChange}
+          required
+          error={errors.username}
+        />
+        <FormField
+          label="Email"
+          name="email"
+          type="email"
+          value={values.email}
+          readOnly
+          required
+        />
+        <FormField
+          label="Password"
+          name="pass"
+          type="password"
+          value={values.pass}
+          onChange={handleChange}
+          required
+          error={errors.pass}
+        />
+        <FormField
+          label="Phone"
+          name="phone"
+          value={values.phone}
+          onChange={handleChange}
+          required
+          error={errors.phone}
+        />
+        <FormField
+          label="Address"
+          name="address"
+          value={values.address}
+          onChange={handleChange}
+          required
+          error={errors.address}
+        />
+        <FormFileInput
+          label="Avatar"
+          name="avatar"
+          onChange={handleFileChange}
+          required
+          error={errors.avatar}
+          preview={preview}
+        />
+        <SubmitButton label="Update" />
+      </form>
+    </FormPanel>
   );
 }
+
 export default Account;

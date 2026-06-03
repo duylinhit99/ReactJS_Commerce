@@ -11,3 +11,71 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
+
+.form-field {
+  margin-bottom: 8px;
+}
+
+.form-field label {
+  display: block;
+}
+
+.field-error {
+  display: block;
+  color: #c0392b;
+  font-size: 13px;
+  margin-top: 4px;
+}
+
+.form-error-list {
+  padding-left: 0;
+  margin-bottom: 12px;
+}
+
+.sidebar-empty {
+  color: #888;
+  font-size: 13px;
+}
+
+.sidebar-list {
+  margin-bottom: 20px;
+}
+
+.account-menu li.active a {
+  font-weight: bold;
+  color: #fe980f;
+}
+
+.shop-details-tab .tab-button {
+  background: none;
+  border: none;
+  padding: 10px 15px;
+  cursor: pointer;
+  color: inherit;
+  font: inherit;
+}
+
+.shop-details-tab li.active .tab-button {
+  color: #fe980f;
+}
+
+.thumbnail-btn {
+  background: none;
+  border: none;
+  padding: 0;
+  margin-right: 6px;
+  cursor: pointer;
+}
+
+.product-detail-text p {
+  line-height: 1.6;
+  white-space: pre-wrap;
+}
+
+.review-meta {
+  list-style: none;
+  padding: 0;
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+}
